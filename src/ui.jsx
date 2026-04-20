@@ -81,7 +81,6 @@ function BottomNav({ screen, onNav }) {
         if (i === 2) {
           return (
             <React.Fragment key="fab-group">
-              {/* FAB triangular → siembra */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <button onClick={() => onNav('siembra')} style={{
                   background: 'none', border: 'none', padding: 0, cursor: 'pointer',
@@ -206,4 +205,20 @@ function SectionTitle({ children, action, onAction }) {
   );
 }
 
-Object.assign(window, { T, ScreenBg, TopBar, BottomNav, Card, Badge, StatChip, DiagRow, SectionTitle });
+function PlantImg({ src, alt, emoji = '🌿', style = {} }) {
+  const [err, setErr] = React.useState(false);
+  if (err) {
+    const h = parseInt(style.height || style.width || 80);
+    return (
+      <div style={{
+        background: T.verdeSoft,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: Math.max(16, Math.min(Math.round(h * 0.45), 52)),
+        ...style,
+      }}>{emoji}</div>
+    );
+  }
+  return <img src={src} alt={alt} onError={() => setErr(true)} style={style} />;
+}
+
+Object.assign(window, { T, ScreenBg, TopBar, BottomNav, Card, Badge, StatChip, DiagRow, SectionTitle, PlantImg });

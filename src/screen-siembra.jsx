@@ -2,8 +2,8 @@
 function ScreenSiembra() {
   const faseMap = {
     germinando:   { label: 'Germinando',   color: '#C4622D', bg: '#FFF3E0' },
-    plántula:     { label: 'Plántula',      color: T.verdeClaro, bg: '#E8F5E2' },
-    trasplantado: { label: 'Trasplantado',  color: T.verde, bg: T.verdeSoft },
+    plántula:     { label: 'Plántula',     color: T.verdeClaro, bg: '#E8F5E2' },
+    trasplantado: { label: 'Trasplantado', color: T.verde, bg: T.verdeSoft },
   };
 
   return (
@@ -19,7 +19,9 @@ function ScreenSiembra() {
           return (
             <Card key={s.id} style={{ padding: 16 }}>
               <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                <img src={s.img} alt={s.nombre} style={{ width: 72, height: 72, borderRadius: 16, objectFit: 'cover', flexShrink: 0 }} />
+                <PlantImg src={s.img} alt={s.nombre} emoji={s.emoji}
+                  style={{ width: 72, height: 72, borderRadius: 16, objectFit: 'cover', flexShrink: 0 }}
+                />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
@@ -33,22 +35,19 @@ function ScreenSiembra() {
                   </div>
 
                   <div style={{ marginTop: 10 }}>
-                    {/* Days counter */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                       <span style={{ fontSize: 12, color: T.textoSub }}>Día {s.dias}</span>
                       <span style={{ fontSize: 12, color: germinado ? T.verdeClaro : T.textoSub, fontWeight: germinado ? 600 : 400 }}>
-                        {germinado ? '✓ Germinada' : `Germina en ${s.diasGerminar - s.dias}d`}
+                        {germinado ? '✅ Germinada' : `Germina en ${s.diasGerminar - s.dias}d`}
                       </span>
                     </div>
 
-                    {/* Progress bar */}
                     <div style={{ height: 6, background: T.border, borderRadius: 3, position: 'relative' }}>
                       <div style={{
                         height: '100%', width: `${progreso}%`,
                         background: `linear-gradient(to right, ${T.verdeClaro}, ${T.verde})`,
                         borderRadius: 3, transition: 'width 0.5s ease',
                       }} />
-                      {/* Germination marker */}
                       <div style={{
                         position: 'absolute', top: -3, left: `${Math.min(100, Math.round((s.diasGerminar / (s.diasGerminar * 3)) * 100))}%`,
                         width: 2, height: 12, background: T.naranja, borderRadius: 1,

@@ -11,7 +11,6 @@ function ScreenDetail({ plantaId, onBack }) {
     { icon: IcRuler,       value: `${planta.altura}cm`, label: 'Alto' },
   ];
 
-  // Mini calendar: últimos 7 días + próximos 7
   const calDays = [];
   for (let i = -6; i <= 6; i++) {
     const d = new Date(hoy);
@@ -28,12 +27,14 @@ function ScreenDetail({ plantaId, onBack }) {
     <ScreenBg>
       {/* Hero image */}
       <div style={{ position: 'relative', height: 240 }}>
-        <img src={planta.img} alt={planta.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <PlantImg
+          src={planta.img} alt={planta.nombre} emoji={planta.emoji}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 40%, rgba(0,0,0,0.3) 100%)',
         }} />
-        {/* Back button over image */}
         <button onClick={onBack} style={{
           position: 'absolute', top: 16, left: 16,
           width: 38, height: 38, borderRadius: 19,
@@ -43,11 +44,9 @@ function ScreenDetail({ plantaId, onBack }) {
         }}>
           <IcChevronLeft size={18} color={T.texto} />
         </button>
-        {/* Badge over image */}
         <div style={{ position: 'absolute', top: 16, right: 16 }}>
           <Badge kind={planta.estado} />
         </div>
-        {/* Title overlay */}
         <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: -0.4, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{planta.nombre}</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginTop: 2 }}>{planta.familia} · {planta.ubicacion}</div>
@@ -68,7 +67,7 @@ function ScreenDetail({ plantaId, onBack }) {
               fontSize: 12, fontWeight: 600,
               color: diasRestantes <= 0 ? T.rojo : diasRestantes <= 2 ? T.naranja : T.verde,
             }}>
-              {diasRestantes <= 0 ? '¡Riega hoy!' : `Próximo en ${diasRestantes}d`}
+              {diasRestantes <= 0 ? '💧 ¡Riega hoy!' : `Próximo en ${diasRestantes}d`}
             </span>
           </div>
           <div style={{ display: 'flex', gap: 4, justifyContent: 'space-between' }}>

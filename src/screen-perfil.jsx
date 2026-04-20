@@ -1,10 +1,44 @@
 
+const AVATAR_OPCIONES = ['🌿', '🌱', '🌻', '🌺', '🌸', '🌵', '🍃', '🌾'];
+
 function ScreenPerfil({ onPlanta }) {
   const [pendDone, setPendDone] = React.useState({});
   const iconsMap = { IcSprout, IcRoot, IcLeaf, IcFlower, IcDrop };
 
+  const [avatarEmoji, setAvatarEmoji] = React.useState(
+    () => localStorage.getItem('tc_avatar_emoji') || '🌿'
+  );
+  const [showPicker, setShowPicker] = React.useState(false);
+
+  const [nombre, setNombre] = React.useState(
+    () => localStorage.getItem('tc_nombre_jardin') || 'Terraza Cádiz'
+  );
+  const [editandoNombre, setEditandoNombre] = React.useState(false);
+  const [nombreTmp, setNombreTmp] = React.useState(nombre);
+
+  const [resetMsg, setResetMsg] = React.useState(false);
+
   const toggle = (id) => setPendDone(prev => ({ ...prev, [id]: !prev[id] }));
   const pendientesRestantes = PENDIENTES.filter(p => !pendDone[p.id]).length;
+
+  const seleccionarEmoji = (e) => {
+    setAvatarEmoji(e);
+    localStorage.setItem('tc_avatar_emoji', e);
+    setShowPicker(false);
+  };
+
+  const guardarNombre = () => {
+    const n = nombreTmp.trim() || 'Terraza Cádiz';
+    setNombre(n);
+    localStorage.setItem('tc_nombre_jardin', n);
+    setEditandoNombre(false);
+  };
+
+  const resetearSiembras = () => {
+    Object.keys(localStorage).filter(k => k.startsWith('tc_siembra_')).forEach(k => localStorage.removeItem(k));
+    setResetMsg(true);
+    setTimeout(() => setResetMsg(false), 2500);
+  };
 
   const ajustes = [
     { label: 'Notificaciones de riego', detail: 'Activas' },
@@ -28,23 +62,93 @@ function ScreenPerfil({ onPlanta }) {
         {/* Avatar + info */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
           <div style={{ position: 'relative', marginBottom: 12 }}>
-            <div style={{
-              width: 80, height: 80, borderRadius: 40,
-              background: T.verdeSoft, border: `3px solid ${T.verdeLine}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 32, fontWeight: 700, color: T.verde,
-            }}>C</div>
+            <button
+              onClick={() => setShowPicker(v => !v)}
+              style={{
+                width: 80, height: 80, borderRadius: 40,
+                background: T.verdeSoft, border: `3px solid ${showPicker ? T.verde : T.verdeLine}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 36, cursor: 'pointer',
+                transition: 'border-color 0.2s',
+              }}
+            >
+              {avatarEmoji}
+            </button>
             <div style={{
               position: 'absolute', bottom: 2, right: 2,
               width: 22, height: 22, borderRadius: 11,
               background: T.verde, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '2px solid white',
+              border: '2px solid white', pointerEvents: 'none',
             }}>
               <IcPlus size={11} color="#fff" />
             </div>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: T.texto, letterSpacing: -0.3 }}>Terraza Cádiz</div>
+
+          {/* Emoji picker */}
+          {showPicker && (
+            <div style={{
+              display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center',
+              background: T.card, borderRadius: 16, padding: '12px 16px',
+              border: `1px solid ${T.border}`, marginBottom: 12,
+              boxShadow: '0 4px 20px rgba(31,77,58,0.1)',
+            }}>
+              {AVATAR_OPCIONES.map(e => (
+                <button
+                  key={e}
+                  onClick={() => seleccionarEmoji(e)}
+                  style={{
+                    width: 40, height: 40, borderRadius: 12,
+                    border: `2px solid ${e === avatarEmoji ? T.verde : T.border}`,
+                    background: e === avatarEmoji ? T.verdeSoft : 'transparent',
+                    fontSize: 22, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.15s',
+                  }}
+                >{e}</button>
+              ))}
+            </div>
+          )}
+
+          {/* Nombre editable */}
+          {editandoNombre ? (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                autoFocus
+                value={nombreTmp}
+                onChange={e => setNombreTmp(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') guardarNombre(); if (e.key === 'Escape') setEditandoNombre(false); }}
+                style={{
+                  fontSize: 20, fontWeight: 700, color: T.texto,
+                  border: `2px solid ${T.verde}`, borderRadius: 10,
+                  padding: '4px 10px', fontFamily: T.font,
+                  background: T.card, outline: 'none', textAlign: 'center',
+                  letterSpacing: -0.3,
+                }}
+              />
+              <button onClick={guardarNombre} style={{
+                background: T.verde, border: 'none', borderRadius: 8,
+                padding: '6px 10px', cursor: 'pointer',
+              }}>
+                <IcCheck size={14} color="#fff" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setNombreTmp(nombre); setEditandoNombre(true); }}
+              style={{
+                fontSize: 22, fontWeight: 700, color: T.texto, letterSpacing: -0.3,
+                background: 'none', border: 'none', cursor: 'pointer', fontFamily: T.font,
+                padding: '2px 6px', borderRadius: 8,
+                borderBottom: `2px dashed ${T.verdeLine}`,
+              }}
+            >
+              {nombre}
+            </button>
+          )}
           <div style={{ fontSize: 13, color: T.textoSub, marginTop: 3 }}>Piso alto · NE 25° · sol 7–11h</div>
+          {!editandoNombre && (
+            <div style={{ fontSize: 11, color: T.textoSub, marginTop: 4 }}>Toca el nombre para editar · toca el emoji para cambiarlo</div>
+          )}
         </div>
 
         {/* Stats */}
@@ -107,14 +211,14 @@ function ScreenPerfil({ onPlanta }) {
           </Card>
         </div>
 
-        {/* Ajustes */}
+        {/* Configuración */}
         <div style={{ marginBottom: 24 }}>
-          <SectionTitle>Ajustes</SectionTitle>
+          <SectionTitle>Configuración</SectionTitle>
           <Card>
             {ajustes.map((a, i) => (
               <div key={a.label} style={{
                 display: 'flex', alignItems: 'center', padding: '14px 16px',
-                borderBottom: i < ajustes.length - 1 ? `1px solid ${T.border}` : 'none',
+                borderBottom: `1px solid ${T.border}`,
                 cursor: 'pointer',
               }}>
                 <span style={{ flex: 1, fontSize: 14, color: T.texto }}>{a.label}</span>
@@ -122,6 +226,21 @@ function ScreenPerfil({ onPlanta }) {
                 <IcChevronRight size={14} color={T.border} />
               </div>
             ))}
+            {/* Reset siembras */}
+            <div style={{ padding: '14px 16px' }}>
+              <button
+                onClick={resetearSiembras}
+                style={{
+                  width: '100%', padding: '10px 0',
+                  background: '#FFF5F5', border: `1px solid #FDDCDC`,
+                  borderRadius: 12, cursor: 'pointer', fontFamily: T.font,
+                  fontSize: 14, color: T.rojo, fontWeight: 500,
+                  transition: 'opacity 0.2s',
+                }}
+              >
+                {resetMsg ? '✅ Siembras restablecidas' : '🔄 Resetear siembras a valores por defecto'}
+              </button>
+            </div>
           </Card>
         </div>
       </div>

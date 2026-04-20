@@ -4,7 +4,8 @@ const HOY = '2026-04-20';
 const PLANTAS = [
   {
     id: 1,
-    img: 'https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=600&auto=format&fit=crop',
+    img: 'img/aloe-vera.jpg',
+    emoji: '🌵',
     nombre: 'Aloe vera',
     tipo: 'Suculenta',
     familia: 'Asphodelaceae',
@@ -26,7 +27,8 @@ const PLANTAS = [
   },
   {
     id: 2,
-    img: 'https://images.unsplash.com/photo-1463936575829-25148e1db1b8?w=600&auto=format&fit=crop',
+    img: 'img/crassula-ovata.jpg',
+    emoji: '🌿',
     nombre: 'Crassula ovata',
     tipo: 'Suculenta',
     familia: 'Crassulaceae',
@@ -48,7 +50,8 @@ const PLANTAS = [
   },
   {
     id: 3,
-    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop',
+    img: 'img/cinta.jpg',
+    emoji: '🌱',
     nombre: 'Cinta',
     tipo: 'Herbácea',
     familia: 'Asparagaceae',
@@ -70,7 +73,8 @@ const PLANTAS = [
   },
   {
     id: 4,
-    img: 'https://images.unsplash.com/photo-1611909023032-2d6b3134ecba?w=600&auto=format&fit=crop',
+    img: 'img/lavanda.jpg',
+    emoji: '💜',
     nombre: 'Lavanda',
     tipo: 'Aromática',
     familia: 'Lamiaceae',
@@ -92,7 +96,8 @@ const PLANTAS = [
   },
   {
     id: 5,
-    img: 'https://images.unsplash.com/photo-1455793047964-8a36ea7a7f7b?w=600&auto=format&fit=crop',
+    img: 'img/kalanchoe.jpg',
+    emoji: '🌺',
     nombre: 'Kalanchoe',
     tipo: 'Suculenta',
     familia: 'Crassulaceae',
@@ -114,7 +119,8 @@ const PLANTAS = [
   },
   {
     id: 6,
-    img: 'https://images.unsplash.com/photo-1585314614250-d213876625e4?w=600&auto=format&fit=crop',
+    img: 'img/phalaenopsis.jpg',
+    emoji: '🌸',
     nombre: 'Phalaenopsis',
     tipo: 'Orquídea',
     familia: 'Orchidaceae',
@@ -132,11 +138,12 @@ const PLANTAS = [
       { tipo: 'agua', titulo: 'Humedad óptima', valor: 74, nota: 'Próximo riego en 3 días', sev: 'low' },
       { tipo: 'luz', titulo: 'Luz filtrada', valor: 55, nota: 'Sin luz directa. Correcto.', sev: 'low' },
     ],
-    notas: 'Orquídea pequeña ×2. Unas 900 especies de plantas trepadoras de interior.',
+    notas: 'Orquídea pequeña. Unas 900 especies de plantas trepadoras de interior.',
   },
   {
     id: 7,
-    img: 'https://images.unsplash.com/photo-1614594575117-8ee9f6c57b55?w=600&auto=format&fit=crop',
+    img: 'img/monstera.jpg',
+    emoji: '🍃',
     nombre: 'Monstera',
     tipo: 'Tropical',
     familia: 'Araceae',
@@ -158,7 +165,8 @@ const PLANTAS = [
   },
   {
     id: 8,
-    img: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=600&auto=format&fit=crop',
+    img: 'img/tomate-cherry.jpg',
+    emoji: '🍅',
     nombre: 'Tomate Cherry',
     tipo: 'Hortaliza',
     familia: 'Solanaceae',
@@ -180,10 +188,11 @@ const PLANTAS = [
   },
 ];
 
-const SIEMBRAS = [
+const SIEMBRAS_DEFAULT = [
   {
     id: 1,
-    img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&auto=format&fit=crop',
+    img: 'img/lavanda.jpg',
+    emoji: '💜',
     nombre: 'Lavanda',
     latin: 'Lavandula angustifolia',
     fecha: '2026-03-15',
@@ -194,7 +203,8 @@ const SIEMBRAS = [
   },
   {
     id: 2,
-    img: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=600&auto=format&fit=crop',
+    img: 'img/tomate-cherry.jpg',
+    emoji: '🍅',
     nombre: 'Tomate Cherry',
     latin: 'Solanum lycopersicum',
     fecha: '2026-03-01',
@@ -205,7 +215,8 @@ const SIEMBRAS = [
   },
   {
     id: 3,
-    img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop',
+    img: 'img/albahaca.jpg',
+    emoji: '🌿',
     nombre: 'Albahaca',
     latin: 'Ocimum basilicum',
     fecha: '2026-04-10',
@@ -216,11 +227,13 @@ const SIEMBRAS = [
   },
 ];
 
+const SIEMBRAS = SIEMBRAS_DEFAULT;
+
 const PENDIENTES = [
   { id: 1, icono: 'IcSprout', texto: 'Separar hijuelos del aloe grande', nota: 'Ya listos en el cajón de madera' },
   { id: 2, icono: 'IcRoot', texto: 'Trasplante Crassula', nota: 'Maceta un poco más grande' },
   { id: 3, icono: 'IcLeaf', texto: 'Separar Espatifilo de la Cinta', nota: 'Mover a más luz' },
-  { id: 4, icono: 'IcSprout', texto: 'Sembrar lavanda', nota: 'Maceta 28-30cm · sustrato+perlita 50/50' },
+  { id: 4, icono: 'IcSprout', texto: 'Sembrar lavanda', nota: 'Maceta 28-30cm — sustrato+perlita 50/50' },
   { id: 5, icono: 'IcFlower', texto: 'Separar Rocío del Kalanchoe', nota: 'Cuando acabe la floración' },
 ];
 
@@ -235,4 +248,4 @@ const MAPA_POS = [
   { id: 8, left: '82%', top: '55%' },
 ];
 
-Object.assign(window, { PLANTAS, SIEMBRAS, PENDIENTES, MAPA_POS });
+Object.assign(window, { PLANTAS, SIEMBRAS, SIEMBRAS_DEFAULT, PENDIENTES, MAPA_POS });

@@ -21,17 +21,14 @@ function ScreenMapa({ onPlanta }) {
       <div style={{ padding: '16px 20px 0' }}>
         {/* Map area */}
         <Card style={{ position: 'relative', overflow: 'visible' }}>
-          {/* Terraza esquema */}
           <div style={{
             width: '100%', paddingBottom: '70%',
             position: 'relative', overflow: 'hidden',
             borderRadius: 20,
             background: `linear-gradient(135deg, #E8F0E4 0%, #D5E8D0 40%, #C8DFC3 100%)`,
           }}>
-            {/* Zona sur label */}
-            <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', fontSize: 10, color: T.textoSub, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>← Norte · Sur →</div>
+            <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', fontSize: 10, color: T.textoSub, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>↑ Norte · Sur ↓</div>
 
-            {/* Grid lines decorativas */}
             <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.15 }}>
               <defs>
                 <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -41,7 +38,6 @@ function ScreenMapa({ onPlanta }) {
               <rect width="100%" height="100%" fill="url(#grid)" />
             </svg>
 
-            {/* Zonas de terraza */}
             <div style={{ position: 'absolute', top: '8%', left: '5%', width: '25%', height: '35%', background: 'rgba(31,77,58,0.08)', borderRadius: 10, border: `1px dashed ${T.verdeLine}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 9, color: T.verde, fontWeight: 600 }}>NORTE</span>
             </div>
@@ -49,7 +45,6 @@ function ScreenMapa({ onPlanta }) {
               <span style={{ fontSize: 9, color: T.verde, fontWeight: 600 }}>SUR</span>
             </div>
 
-            {/* Plantas dots */}
             {MAPA_POS.map(pos => {
               const planta = PLANTAS.find(p => p.id === pos.id);
               if (!planta) return null;
@@ -75,7 +70,9 @@ function ScreenMapa({ onPlanta }) {
                     zIndex: isSelected ? 10 : 1,
                   }}
                 >
-                  <img src={planta.img} alt={planta.nombre} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  <PlantImg src={planta.img} alt={planta.nombre} emoji={planta.emoji}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                  />
                 </button>
               );
             })}
@@ -101,7 +98,9 @@ function ScreenMapa({ onPlanta }) {
         {selectedPlanta && (
           <Card style={{ marginTop: 16, padding: 14 }} onClick={() => onPlanta(selectedPlanta.id)}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <img src={selectedPlanta.img} alt={selectedPlanta.nombre} style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover' }} />
+              <PlantImg src={selectedPlanta.img} alt={selectedPlanta.nombre} emoji={selectedPlanta.emoji}
+                style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover' }}
+              />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: T.texto }}>{selectedPlanta.nombre}</div>

@@ -41,7 +41,7 @@ function ScreenRiego({ onPlanta }) {
             }} />
           </div>
           <div style={{ marginTop: 5, fontSize: 11, color: T.textoSub }}>
-            {regadasHoy === plantas.length ? '¡Todo regado! 🎉' : `Faltan ${plantas.length - regadasHoy}`}
+            {regadasHoy === plantas.length ? '✅ ¡Todo regado!' : `Faltan ${plantas.length - regadasHoy}`}
           </div>
         </div>
 
@@ -62,8 +62,8 @@ function ScreenRiego({ onPlanta }) {
                   }} />
 
                   {/* Image */}
-                  <img
-                    src={p.img} alt={p.nombre}
+                  <PlantImg
+                    src={p.img} alt={p.nombre} emoji={p.emoji}
                     onClick={() => onPlanta(p.id)}
                     style={{ width: 48, height: 48, borderRadius: 12, objectFit: 'cover', flexShrink: 0, cursor: 'pointer', opacity: isDone ? 0.5 : 1 }}
                   />
@@ -79,7 +79,7 @@ function ScreenRiego({ onPlanta }) {
                         background: isDone ? T.border : u.bg,
                         padding: '2px 7px', borderRadius: 8,
                       }}>
-                        {isDone ? '✓ Regada' : (dias <= 0 ? '¡Hoy!' : `En ${dias}d`)}
+                        {isDone ? '✅ Regada' : (dias <= 0 ? '💧 ¡Hoy!' : `En ${dias}d`)}
                       </span>
                     </div>
                   </div>
