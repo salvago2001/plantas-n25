@@ -2,7 +2,10 @@
 function ScreenMapa({ onPlanta }) {
   const [selected, setSelected] = React.useState(null);
   const hoy = new Date();
-  const diasRiego = (p) => p.riegoDias - Math.floor((hoy - new Date(p.ultimoRiego)) / 86400000);
+  const diasRiego = (p) => {
+    const ultimo = localStorage.getItem('tc_riego_' + p.id) || p.ultimoRiego;
+    return p.riegoDias - Math.floor((hoy - new Date(ultimo)) / 86400000);
+  };
 
   const dotColor = (p) => {
     if (p.estado === 'floreciendo') return '#E91E8A';

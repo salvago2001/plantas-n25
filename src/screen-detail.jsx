@@ -2,7 +2,19 @@
 function ScreenDetail({ plantaId, onBack }) {
   const planta = PLANTAS.find(p => p.id === plantaId) || PLANTAS[0];
   const hoy = new Date();
-  const diasRestantes = planta.riegoDias - Math.floor((hoy - new Date(planta.ultimoRiego)) / 86400000);
+  const ultimoRiego = localStorage.getItem('tc_riego_' + planta.id) || planta.ultimoRiego;
+  const diasRestantes = planta.riegoDias - Math.floor((hoy - new Date(ultimoRiego)) / 86400000);
+
+  const proximoFecha = () => {
+    const d = new Date(hoy);
+    d.setDate(hoy.getDate() + Math.max(0, diasRestantes));
+    return d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+  };
+
+  const cicloProgress = () => {
+    const diasDesde = Math.floor((hoy - new Date(ultimoRiego)) / 86400000);
+    return Math.min(100, Math.round((diasDesde / planta.riegoDias) * 100));
+  };
 
   const chips = [
     { icon: IcDrop,        value: `${planta.humedad}%`, label: 'Humedad' },
@@ -15,17 +27,17 @@ function ScreenDetail({ plantaId, onBack }) {
   for (let i = -6; i <= 6; i++) {
     const d = new Date(hoy);
     d.setDate(hoy.getDate() + i);
-    const diffFromLastWatering = Math.floor((d - new Date(planta.ultimoRiego)) / 86400000);
+    const diffFromLastWatering = Math.floor((d - new Date(ultimoRiego)) / 86400000);
     const isWatered = diffFromLastWatering === 0;
     const isNext = Math.round((d - hoy) / 86400000) === diasRestantes;
     calDays.push({ date: d, isWatered, isNext, isToday: i === 0 });
   }
 
   const dayNames = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+  const progColor = diasRestantes <= 0 ? T.rojo : diasRestantes <= 2 ? T.naranja : T.verde;
 
   return (
     <ScreenBg>
-      {/* Hero image */}
       <div style={{ position: 'relative', height: 240 }}>
         <PlantImg
           src={planta.img} alt={planta.nombre} emoji={planta.emoji}
@@ -54,22 +66,18 @@ function ScreenDetail({ plantaId, onBack }) {
       </div>
 
       <div style={{ padding: '20px 20px 0' }}>
-        {/* Stat chips row */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           {chips.map((c, i) => <StatChip key={i} icon={c.icon} value={c.value} label={c.label} />)}
         </div>
 
-        {/* Riego calendar */}
         <Card style={{ marginBottom: 16, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <span style={{ fontSize: 15, fontWeight: 700, color: T.texto }}>Calendario de riego</span>
-            <span style={{
-              fontSize: 12, fontWeight: 600,
-              color: diasRestantes <= 0 ? T.rojo : diasRestantes <= 2 ? T.naranja : T.verde,
-            }}>
-              {diasRestantes <= 0 ? '💧 ¡Riega hoy!' : `Próximo en ${diasRestantes}d`}
+            <span style={{ fontSize: 12, fontWeight: 600, color: progColor }}>
+              {diasRestantes <= 0 ? '💧 ¡Riega hoy!' : `En ${diasRestantes}d`}
             </span>
           </div>
+
           <div style={{ display: 'flex', gap: 4, justifyContent: 'space-between' }}>
             {calDays.map((d, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -91,7 +99,24 @@ function ScreenDetail({ plantaId, onBack }) {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+
+          <div style={{ marginTop: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <span style={{ fontSize: 12, color: T.textoSub, fontWeight: 500 }}>
+                Próximo riego: <span style={{ color: progColor, fontWeight: 700 }}>{diasRestantes <= 0 ? 'hoy' : proximoFecha()}</span>
+              </span>
+              <span style={{ fontSize: 11, color: T.textoSub }}>{cicloProgress()}%</span>
+            </div>
+            <div style={{ height: 5, background: T.border, borderRadius: 3 }}>
+              <div style={{
+                height: '100%', width: `${cicloProgress()}%`,
+                background: progColor, borderRadius: 3,
+                transition: 'width 0.4s ease',
+              }} />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <div style={{ width: 10, height: 10, borderRadius: 5, background: T.azul }} />
               <span style={{ fontSize: 11, color: T.textoSub }}>Regada</span>
@@ -103,13 +128,11 @@ function ScreenDetail({ plantaId, onBack }) {
           </div>
         </Card>
 
-        {/* Diagnosis */}
         <Card style={{ marginBottom: 16, padding: 16 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: T.texto, marginBottom: 12 }}>Diagnóstico</div>
           {planta.diagnosis.map((d, i) => <DiagRow key={i} item={d} />)}
         </Card>
 
-        {/* Notas */}
         {planta.notas && (
           <Card style={{ padding: 16 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: T.texto, marginBottom: 8 }}>Notas</div>

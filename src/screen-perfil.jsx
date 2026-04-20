@@ -9,6 +9,7 @@ function ScreenPerfil({ onPlanta }) {
     () => localStorage.getItem('tc_avatar_emoji') || '🌿'
   );
   const [showPicker, setShowPicker] = React.useState(false);
+  const [showSettings, setShowSettings] = React.useState(false);
 
   const [nombre, setNombre] = React.useState(
     () => localStorage.getItem('tc_nombre_jardin') || 'Terraza Cádiz'
@@ -16,7 +17,14 @@ function ScreenPerfil({ onPlanta }) {
   const [editandoNombre, setEditandoNombre] = React.useState(false);
   const [nombreTmp, setNombreTmp] = React.useState(nombre);
 
+  const [ciudad, setCiudad] = React.useState(
+    () => localStorage.getItem('tc_ciudad') || 'Cádiz, España'
+  );
+  const [ciudadTmp, setCiudadTmp] = React.useState(ciudad);
+  const [nombreSheet, setNombreSheet] = React.useState(nombre);
+
   const [resetMsg, setResetMsg] = React.useState(false);
+  const [exportMsg, setExportMsg] = React.useState(false);
 
   const toggle = (id) => setPendDone(prev => ({ ...prev, [id]: !prev[id] }));
   const pendientesRestantes = PENDIENTES.filter(p => !pendDone[p.id]).length;
@@ -34,17 +42,54 @@ function ScreenPerfil({ onPlanta }) {
     setEditandoNombre(false);
   };
 
+  const guardarSettings = () => {
+    const n = nombreSheet.trim() || 'Terraza Cádiz';
+    const c = ciudadTmp.trim() || 'Cádiz, España';
+    setNombre(n);
+    setCiudad(c);
+    localStorage.setItem('tc_nombre_jardin', n);
+    localStorage.setItem('tc_ciudad', c);
+    setShowSettings(false);
+  };
+
   const resetearSiembras = () => {
     Object.keys(localStorage).filter(k => k.startsWith('tc_siembra_')).forEach(k => localStorage.removeItem(k));
     setResetMsg(true);
     setTimeout(() => setResetMsg(false), 2500);
   };
 
+  const exportarDatos = () => {
+    const data = {
+      exportDate: new Date().toISOString(),
+      jardin: {
+        nombre: localStorage.getItem('tc_nombre_jardin') || 'Terraza Cádiz',
+        ciudad: localStorage.getItem('tc_ciudad') || 'Cádiz, España',
+      },
+      plantas: PLANTAS.map(p => ({
+        ...p,
+        ultimoRiego: localStorage.getItem('tc_riego_' + p.id) || p.ultimoRiego,
+      })),
+      siembras: SIEMBRAS,
+      pendientes: PENDIENTES,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantas-cadiz-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setExportMsg(true);
+    setTimeout(() => setExportMsg(false), 2500);
+  };
+
   const ajustes = [
-    { label: 'Notificaciones de riego', detail: 'Activas' },
-    { label: 'Ubicación', detail: 'Cádiz, España' },
-    { label: 'Exportar datos', detail: null },
-    { label: 'Acerca de', detail: 'v1.0' },
+    { label: 'Notificaciones de riego', detail: 'Activas', onClick: null },
+    { label: 'Ubicación', detail: ciudad, onClick: () => { setNombreSheet(nombre); setCiudadTmp(ciudad); setShowSettings(true); } },
+    { label: 'Exportar datos', detail: exportMsg ? '✅ Descargado' : null, onClick: exportarDatos },
+    { label: 'Acerca de', detail: 'v1.0', onClick: null },
   ];
 
   return (
@@ -52,14 +97,16 @@ function ScreenPerfil({ onPlanta }) {
       <TopBar
         title="Perfil"
         trailing={
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+          <button
+            onClick={() => { setNombreSheet(nombre); setCiudadTmp(ciudad); setShowSettings(true); }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          >
             <IcSettings size={20} color={T.textoSub} />
           </button>
         }
       />
 
       <div style={{ padding: '24px 20px 0' }}>
-        {/* Avatar + info */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
           <div style={{ position: 'relative', marginBottom: 12 }}>
             <button
@@ -84,7 +131,6 @@ function ScreenPerfil({ onPlanta }) {
             </div>
           </div>
 
-          {/* Emoji picker */}
           {showPicker && (
             <div style={{
               display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center',
@@ -109,7 +155,6 @@ function ScreenPerfil({ onPlanta }) {
             </div>
           )}
 
-          {/* Nombre editable */}
           {editandoNombre ? (
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <input
@@ -145,13 +190,12 @@ function ScreenPerfil({ onPlanta }) {
               {nombre}
             </button>
           )}
-          <div style={{ fontSize: 13, color: T.textoSub, marginTop: 3 }}>Piso alto · NE 25° · sol 7–11h</div>
+          <div style={{ fontSize: 13, color: T.textoSub, marginTop: 3 }}>{ciudad}</div>
           {!editandoNombre && (
             <div style={{ fontSize: 11, color: T.textoSub, marginTop: 4 }}>Toca el nombre para editar · toca el emoji para cambiarlo</div>
           )}
         </div>
 
-        {/* Stats */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 24 }}>
           {[
             { n: PLANTAS.length, label: 'PLANTAS', color: T.verde },
@@ -168,7 +212,6 @@ function ScreenPerfil({ onPlanta }) {
           ))}
         </div>
 
-        {/* Pendientes */}
         <div style={{ marginBottom: 24 }}>
           <SectionTitle>Pendientes</SectionTitle>
           <Card>
@@ -211,22 +254,24 @@ function ScreenPerfil({ onPlanta }) {
           </Card>
         </div>
 
-        {/* Configuración */}
         <div style={{ marginBottom: 24 }}>
           <SectionTitle>Configuración</SectionTitle>
           <Card>
             {ajustes.map((a, i) => (
-              <div key={a.label} style={{
-                display: 'flex', alignItems: 'center', padding: '14px 16px',
-                borderBottom: `1px solid ${T.border}`,
-                cursor: 'pointer',
-              }}>
-                <span style={{ flex: 1, fontSize: 14, color: T.texto }}>{a.label}</span>
+              <div
+                key={a.label}
+                onClick={a.onClick || undefined}
+                style={{
+                  display: 'flex', alignItems: 'center', padding: '14px 16px',
+                  borderBottom: `1px solid ${T.border}`,
+                  cursor: a.onClick ? 'pointer' : 'default',
+                }}
+              >
+                <span style={{ flex: 1, fontSize: 14, color: a.onClick ? T.texto : T.textoSub }}>{a.label}</span>
                 {a.detail && <span style={{ fontSize: 13, color: T.textoSub, marginRight: 8 }}>{a.detail}</span>}
-                <IcChevronRight size={14} color={T.border} />
+                {a.onClick && <IcChevronRight size={14} color={T.border} />}
               </div>
             ))}
-            {/* Reset siembras */}
             <div style={{ padding: '14px 16px' }}>
               <button
                 onClick={resetearSiembras}
@@ -244,6 +289,85 @@ function ScreenPerfil({ onPlanta }) {
           </Card>
         </div>
       </div>
+
+      {/* Settings bottom sheet */}
+      {showSettings && (
+        <>
+          <div
+            onClick={() => setShowSettings(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 199 }}
+          />
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0,
+            maxWidth: 480, margin: '0 auto',
+            zIndex: 200, background: T.card,
+            borderRadius: '24px 24px 0 0',
+            padding: '24px 20px 48px',
+            boxShadow: '0 -8px 40px rgba(0,0,0,0.15)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <span style={{ fontSize: 17, fontWeight: 700, color: T.texto }}>Configuración del jardín</span>
+              <button onClick={() => setShowSettings(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: T.textoSub, padding: 4 }}>✕</button>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: T.textoSub, marginBottom: 6, letterSpacing: 0.3, textTransform: 'uppercase' }}>Nombre del jardín</div>
+              <input
+                value={nombreSheet}
+                onChange={e => setNombreSheet(e.target.value)}
+                style={{
+                  width: '100%', padding: '12px 14px',
+                  border: `1.5px solid ${T.border}`, borderRadius: 14,
+                  fontSize: 15, fontFamily: T.font, color: T.texto,
+                  background: T.bg, outline: 'none', boxSizing: 'border-box',
+                }}
+                onFocus={e => e.target.style.borderColor = T.verde}
+                onBlur={e => e.target.style.borderColor = T.border}
+              />
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: T.textoSub, marginBottom: 6, letterSpacing: 0.3, textTransform: 'uppercase' }}>Ciudad</div>
+              <input
+                value={ciudadTmp}
+                onChange={e => setCiudadTmp(e.target.value)}
+                style={{
+                  width: '100%', padding: '12px 14px',
+                  border: `1.5px solid ${T.border}`, borderRadius: 14,
+                  fontSize: 15, fontFamily: T.font, color: T.texto,
+                  background: T.bg, outline: 'none', boxSizing: 'border-box',
+                }}
+                onFocus={e => e.target.style.borderColor = T.verde}
+                onBlur={e => e.target.style.borderColor = T.border}
+              />
+            </div>
+
+            <button
+              onClick={guardarSettings}
+              style={{
+                width: '100%', padding: '14px 0',
+                background: T.verde, border: 'none', borderRadius: 16,
+                fontSize: 15, fontWeight: 600, color: '#fff',
+                cursor: 'pointer', fontFamily: T.font, marginBottom: 12,
+              }}
+            >
+              Guardar cambios
+            </button>
+
+            <button
+              onClick={() => { resetearSiembras(); }}
+              style={{
+                width: '100%', padding: '12px 0',
+                background: '#FFF5F5', border: `1px solid #FDDCDC`,
+                borderRadius: 14, cursor: 'pointer', fontFamily: T.font,
+                fontSize: 14, color: T.rojo, fontWeight: 500,
+              }}
+            >
+              {resetMsg ? '✅ Siembras restablecidas' : '🔄 Resetear siembras'}
+            </button>
+          </div>
+        </>
+      )}
     </ScreenBg>
   );
 }
