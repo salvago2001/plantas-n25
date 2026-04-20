@@ -1,0 +1,125 @@
+
+function ScreenDetail({ plantaId, onBack }) {
+  const planta = PLANTAS.find(p => p.id === plantaId) || PLANTAS[0];
+  const hoy = new Date();
+  const diasRestantes = planta.riegoDias - Math.floor((hoy - new Date(planta.ultimoRiego)) / 86400000);
+
+  const chips = [
+    { icon: IcDrop,        value: `${planta.humedad}%`, label: 'Humedad' },
+    { icon: IcSun,         value: `${planta.luz}%`,     label: 'Luz' },
+    { icon: IcThermometer, value: `${planta.temp}°C`,   label: 'Temp' },
+    { icon: IcRuler,       value: `${planta.altura}cm`, label: 'Alto' },
+  ];
+
+  // Mini calendar: últimos 7 días + próximos 7
+  const calDays = [];
+  for (let i = -6; i <= 6; i++) {
+    const d = new Date(hoy);
+    d.setDate(hoy.getDate() + i);
+    const diffFromLastWatering = Math.floor((d - new Date(planta.ultimoRiego)) / 86400000);
+    const isWatered = diffFromLastWatering === 0;
+    const isNext = Math.round((d - hoy) / 86400000) === diasRestantes;
+    calDays.push({ date: d, isWatered, isNext, isToday: i === 0 });
+  }
+
+  const dayNames = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+
+  return (
+    <ScreenBg>
+      {/* Hero image */}
+      <div style={{ position: 'relative', height: 240 }}>
+        <img src={planta.img} alt={planta.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 40%, rgba(0,0,0,0.3) 100%)',
+        }} />
+        {/* Back button over image */}
+        <button onClick={onBack} style={{
+          position: 'absolute', top: 16, left: 16,
+          width: 38, height: 38, borderRadius: 19,
+          background: 'rgba(255,255,255,0.9)',
+          border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <IcChevronLeft size={18} color={T.texto} />
+        </button>
+        {/* Badge over image */}
+        <div style={{ position: 'absolute', top: 16, right: 16 }}>
+          <Badge kind={planta.estado} />
+        </div>
+        {/* Title overlay */}
+        <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: -0.4, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{planta.nombre}</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginTop: 2 }}>{planta.familia} · {planta.ubicacion}</div>
+        </div>
+      </div>
+
+      <div style={{ padding: '20px 20px 0' }}>
+        {/* Stat chips row */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+          {chips.map((c, i) => <StatChip key={i} icon={c.icon} value={c.value} label={c.label} />)}
+        </div>
+
+        {/* Riego calendar */}
+        <Card style={{ marginBottom: 16, padding: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: T.texto }}>Calendario de riego</span>
+            <span style={{
+              fontSize: 12, fontWeight: 600,
+              color: diasRestantes <= 0 ? T.rojo : diasRestantes <= 2 ? T.naranja : T.verde,
+            }}>
+              {diasRestantes <= 0 ? '¡Riega hoy!' : `Próximo en ${diasRestantes}d`}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 4, justifyContent: 'space-between' }}>
+            {calDays.map((d, i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 9, color: T.textoSub, fontWeight: 500 }}>{dayNames[d.date.getDay()]}</span>
+                <div style={{
+                  width: 28, height: 28, borderRadius: 14,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: d.isWatered ? T.azul : d.isNext ? T.verdeSoft : d.isToday ? T.verdeLine : 'transparent',
+                  border: d.isToday && !d.isWatered ? `2px solid ${T.verde}` : 'none',
+                }}>
+                  {d.isWatered ? (
+                    <IcDrop size={12} color="#fff" />
+                  ) : (
+                    <span style={{ fontSize: 11, color: d.isToday ? T.verde : T.textoSub, fontWeight: d.isToday ? 700 : 400 }}>
+                      {d.date.getDate()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 5, background: T.azul }} />
+              <span style={{ fontSize: 11, color: T.textoSub }}>Regada</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 5, background: T.verdeSoft, border: `1px solid ${T.verdeLine}` }} />
+              <span style={{ fontSize: 11, color: T.textoSub }}>Próximo riego</span>
+            </div>
+          </div>
+        </Card>
+
+        {/* Diagnosis */}
+        <Card style={{ marginBottom: 16, padding: 16 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: T.texto, marginBottom: 12 }}>Diagnóstico</div>
+          {planta.diagnosis.map((d, i) => <DiagRow key={i} item={d} />)}
+        </Card>
+
+        {/* Notas */}
+        {planta.notas && (
+          <Card style={{ padding: 16 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: T.texto, marginBottom: 8 }}>Notas</div>
+            <p style={{ fontSize: 13, color: T.textoSub, lineHeight: 1.6, margin: 0 }}>{planta.notas}</p>
+          </Card>
+        )}
+      </div>
+    </ScreenBg>
+  );
+}
+
+Object.assign(window, { ScreenDetail });
